@@ -7,11 +7,11 @@ import org.openqa.selenium.chrome.ChromeOptions;
 public class BrowserFactory {
 
         // Путь к драйверам
-        private static final String CHROME_DRIVER_PATH = "C:/Users/Tonya/WebDrivers/chromedriver.exe";
-        private static final String YANDEX_DRIVER_PATH = "C:/Users/Tonya/WebDrivers/yandexdriver.exe";
+        private static final String CHROME_DRIVER_PATH = System.getenv("CHROME_DRIVER_PATH");
+        private static final String YANDEX_DRIVER_PATH = System.getenv("YANDEX_DRIVER_PATH");
 
         // Путь к исполняемым файлам браузеров
-        private static final String YANDEX_BROWSER_PATH = "C:/Users/Tonya/AppData/Local/Yandex/YandexBrowser/Application/browser.exe";
+        private static final String YANDEX_BROWSER_PATH = System.getenv("YANDEX_BROWSER_PATH");
 
     public static WebDriver getWebDriver() {
         switch (TestConfig.BROWSER.toUpperCase()) {
