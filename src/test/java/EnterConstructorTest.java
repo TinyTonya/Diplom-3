@@ -11,15 +11,16 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pageObject.AuthorizationPage;
-import pageObject.RegisterPage;
-import pageObject.MainPage;
+import pageobject.AuthorizationPage;
+import pageobject.RegisterPage;
+import pageobject.MainPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class EnterConstructorTest {
     private static final Logger logger = LoggerFactory.getLogger(EnterConstructorTest.class);
@@ -36,83 +37,51 @@ public class EnterConstructorTest {
 
     @Before
     public void setUp() {
-        //Инициализация драйвера
         driver = BrowserFactory.getWebDriver();
-
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-        // Открытие страницы авторизации
         driver.get(TestConfig.BASE_URI);
-
-        // Инициализация Page Object
         authorizationPage = new AuthorizationPage(driver);
         registryPage = new RegisterPage(driver);
         mainPage = new MainPage(driver);
-
-        // Инициализация клиента для API
         stellarBurgerClient = new StellarBurgerClient(TestConfig.BASE_URI);
-
-        // Регистрация и логин пользователя в предусловии
         registerAndLoginUser();
     }
 
     @Step("Регистрация и логин пользователя")
     private void registerAndLoginUser() {
-        // Создание данных пользователя
         email = "testuser" + System.currentTimeMillis() + "@example.com";
         password = "password123";
         User user = new User(email, password, "Test User");
-
-        // Регистрация пользователя через API
         accessToken = stellarBurgerClient.registerUser(user)
                 .extract()
                 .path("accessToken");
 
-        // Переход в личный кабинет
-        WebElement lkButton = wait.until(ExpectedConditions.visibilityOfElementLocated(registryPage.getLkButton()));
-        lkButton.click();
+
+        registryPage.waitForLKButton();
+        registryPage.clickLKButton();
         authorizationPage.enterEmail(email);
         authorizationPage.enterPassword(password);
         authorizationPage.clickAuthorizationButton();
-        lkButton.click();
+        registryPage.clickLKButton();
     }
 
     @Test
     @DisplayName("Проверка перехода на страницу конструктора через кнопку 'Конструктор'")
     public void testEnterConstructorViaButton() {
-        logger.info("Начало теста: Проверка перехода на страницу конструктора через кнопку 'Конструктор'");
-
-        // Шаг 1: Нажать на кнопку "Конструктор"
-        logger.debug("Нажатие на кнопку 'Конструктор'");
-        WebElement constructorButton = wait.until(ExpectedConditions.visibilityOfElementLocated(mainPage.getConstructorButton()));
-        constructorButton.click();
-
-        // Шаг 2: Проверить, что текст "Соберите бургер" отображается
-        logger.debug("Проверка текста 'Соберите бургер'");
-        WebElement assembleBurgerText = wait.until(ExpectedConditions.visibilityOfElementLocated(mainPage.getAssembleBurgerText()));
-        String actualText = assembleBurgerText.getText();
-        assertEquals("Соберите бургер", actualText);
-
-        logger.info("Тест завершён успешно");
+        mainPage.waitForConstructorButton();
+        mainPage.clickConstructorButton();
+        mainPage.waitForAssembleBurgerText();
+        assertTrue(mainPage.isAssembleBurgerTextDisplayed());
     }
 
     @Test
     @DisplayName("Проверка перехода на страницу конструктора через логотип")
     public void testEnterConstructorViaLogo() {
-        logger.info("Начало теста: Проверка перехода на страницу конструктора через логотип");
-
-        // Шаг 1: Нажать на логотип
-        logger.debug("Нажатие на логотип");
-        WebElement logo = wait.until(ExpectedConditions.visibilityOfElementLocated(mainPage.getLogo()));
-        logo.click();
-
-        // Шаг 2: Проверить, что текст "Соберите бургер" отображается
-        logger.debug("Проверка текста 'Соберите бургер'");
-        WebElement assembleBurgerText = wait.until(ExpectedConditions.visibilityOfElementLocated(mainPage.getAssembleBurgerText()));
-        String actualText = assembleBurgerText.getText();
-        assertEquals("Соберите бургер", actualText);
-
-        logger.info("Тест завершён успешно");
+        mainPage.waitForLogo();
+        mainPage.clickLogo();
+        mainPage.waitForAssembleBurgerText();
+        assertTrue(mainPage.isAssembleBurgerTextDisplayed());
     }
 
     @After

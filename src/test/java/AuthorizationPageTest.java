@@ -8,18 +8,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pageObject.AuthorizationPage;
-import pageObject.RegisterPage;
-import pageObject.SetNewPasswordPage;
+import pageobject.AuthorizationPage;
+import pageobject.RegisterPage;
+import pageobject.SetNewPasswordPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class AuthorizationPageTest {
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationPageTest.class);
@@ -77,15 +75,12 @@ public class AuthorizationPageTest {
         // Шаг 1: Нажать на кнопку "Войти в аккаунт"
         logger.debug("Нажатие на кнопку 'Войти в аккаунт'");
         authorizationPage.clickLogInToAccountButton();
-        authorizationPage.enterEmail(email);
-        authorizationPage.enterPassword(password);
-        authorizationPage.clickAuthorizationButton();
+        authorizationPage.logIn(email, password);
 
         // Шаг 5: Проверить, что текст кнопки "Сделать заказ" равен ожидаемому
         logger.debug("Проверка текста кнопки 'Оформить заказ'");
-        WebElement makeOrderButton = wait.until(ExpectedConditions.visibilityOfElementLocated(authorizationPage.getMakeOrderButton()));
-        String buttonText = makeOrderButton.getText();
-        assertEquals("Оформить заказ", buttonText);
+        assertTrue(authorizationPage.isMakeOrderButtonDisplayed());
+
 
         logger.info("Тест завершён успешно");
     }
@@ -93,86 +88,36 @@ public class AuthorizationPageTest {
     @Test
     @DisplayName("Проверка входа через кнопку 'Личный кабинет'")
     public void testSuccessfulAuthorizationFromLKButton() {
-        logger.info("Начало теста: Проверка входа через кнопку 'Личный кабинет'");
-
-        // Шаг 1: Нажать на кнопку "Личный кабинет"
-        logger.debug("Нажатие на кнопку 'Личный кабинет'");
-        WebElement lkButton = wait.until(ExpectedConditions.visibilityOfElementLocated(registryPage.getLkButton()));
-        lkButton.click();
-
-        authorizationPage.enterEmail(email);
-        authorizationPage.enterPassword(password);
-        authorizationPage.clickAuthorizationButton();
-
-        // Шаг 5: Проверить, что текст кнопки "Оформить заказ" равен ожидаемому
-        logger.debug("Проверка текста кнопки 'Оформить заказ'");
-        WebElement makeOrderButton = wait.until(ExpectedConditions.visibilityOfElementLocated(authorizationPage.getMakeOrderButton()));
-        String buttonText = makeOrderButton.getText();
-        assertEquals("Оформить заказ", buttonText);
-
-        logger.info("Тест завершён успешно");
+        registryPage.waitForLKButton();
+        registryPage.clickLKButton();
+        authorizationPage.logIn(email, password);
+        assertTrue(authorizationPage.isMakeOrderButtonDisplayed());
     }
 
     @Test
     @DisplayName("Проверка входа через кнопку в форме регистрации")
     public void testSuccessfulAuthorizationInRegistryForm() {
-        logger.info("Начало теста: Проверка входа через кнопку в форме регистрации");
-
-        // Шаг 1: Нажать на кнопку "Личный кабинет"
-        logger.debug("Нажатие на кнопку 'Личный кабинет'");
-        WebElement lkButton = wait.until(ExpectedConditions.visibilityOfElementLocated(registryPage.getLkButton()));
-        lkButton.click();
-
-        // Шаг 2: Переход на страницу регистрации
-        logger.debug("Переход на страницу регистрации");
-        WebElement registerLinkElement = wait.until(ExpectedConditions.visibilityOfElementLocated(registryPage.getRegisterLinkElement()));
-        registryPage.scrollToElement(registerLinkElement);
-        registerLinkElement.click();
-
-        // Шаг 3: Нажать на кнопку "Войти" под формой регистрации
-        logger.debug("Нажатие на кнопку 'Войти' под формой регистрации");
-        WebElement logInUnderRegistryFormElement = wait.until(ExpectedConditions.visibilityOfElementLocated(registryPage.getLogInButtonUnderRegistryFormElement()));
-        logInUnderRegistryFormElement.click();
-
-        authorizationPage.enterEmail(email);
-        authorizationPage.enterPassword(password);
-        authorizationPage.clickAuthorizationButton();
-
-        // Шаг 7: Проверить, что текст кнопки "Оформить заказ" равен ожидаемому
-        logger.debug("Проверка текста кнопки 'Оформить заказ'");
-        WebElement makeOrderButton = wait.until(ExpectedConditions.visibilityOfElementLocated(authorizationPage.getMakeOrderButton()));
-        String buttonText = makeOrderButton.getText();
-        assertEquals("Оформить заказ", buttonText);
-
-        logger.info("Тест завершён успешно");
+        registryPage.waitForLKButton();
+        registryPage.clickLKButton();
+        registryPage.navigateToRegisterLinkElement();
+        registryPage.clickRegisterLink();
+        registryPage.waitForLogInButtonUnderRegistryForm();
+        registryPage.clickLogInButtonUnderRegistryFormElement();
+        authorizationPage.logIn(email, password);
+        assertTrue(authorizationPage.isMakeOrderButtonDisplayed());
     }
 
     @Test
     @DisplayName("Проверка входа через кнопку в форме восстановления пароля")
     public void testSuccessfulAuthorizationInRecoverPasswordForm() {
-        logger.info("Начало теста: Проверка входа через кнопку в форме восстановления пароля");
-        logger.debug("Нажатие на кнопку 'Личный кабинет'");
-        WebElement lkButton = wait.until(ExpectedConditions.visibilityOfElementLocated(registryPage.getLkButton()));
-        lkButton.click();
-        logger.debug("Скролл до элемента 'Восстановить пароль'");
-        WebElement getrecoverPasswordLinkElement = wait.until(ExpectedConditions.visibilityOfElementLocated(recoverPasswwordPage.getRecoverPasswordLinkElement()));
-        registryPage.scrollToElement(getrecoverPasswordLinkElement);
-        logger.debug("Клик на 'Восстановить пароль'");
-        getrecoverPasswordLinkElement.click();
-        logger.debug("Скролл до элемента 'Войти' под формой восстановления пароля");
-        WebElement getlogInLinkOnRecoverPasswordPageElement = wait.until(ExpectedConditions.visibilityOfElementLocated(recoverPasswwordPage.getLogInLinkOnRecoverPasswordPageElement()));
-        registryPage.scrollToElement(getlogInLinkOnRecoverPasswordPageElement);
-        logger.debug("Клик по гипертексту 'Войти'");
-        getlogInLinkOnRecoverPasswordPageElement.click();
-        authorizationPage.enterEmail(email);
-        authorizationPage.enterPassword(password);
-        authorizationPage.clickAuthorizationButton();
-        logger.debug("Проверка текста кнопки 'Оформить заказ'");
-        WebElement makeOrderButton = wait.until(ExpectedConditions.visibilityOfElementLocated(authorizationPage.getMakeOrderButton()));
-        String buttonText = makeOrderButton.getText();
-        assertEquals("Оформить заказ", buttonText);
-
-        logger.info("Тест завершён успешно");
+        registryPage.waitForLKButton();
+        registryPage.clickLKButton();
+        recoverPasswwordPage.navigateToRecoverPasswordLinkElement();
+        recoverPasswwordPage.clickRecoverPasswordLink();
+        recoverPasswwordPage.navigateToLogInLinkOnRecoverPasswordPage();
+        recoverPasswwordPage.clickLogInLinkOnRecoverPasswordPage();
+        authorizationPage.logIn(email, password);
+        assertTrue(authorizationPage.isMakeOrderButtonDisplayed());
     }
 
     @After

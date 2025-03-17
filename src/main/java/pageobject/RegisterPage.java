@@ -1,13 +1,18 @@
-package pageObject;
+package pageobject;
 
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
 
 public class RegisterPage {
     private WebDriver webDriver;
+    private WebDriverWait wait;
 
     // Локаторы элементов
     private final By lkButton = By.xpath("//p[contains(text(), 'Личный Кабинет')]");
@@ -22,10 +27,16 @@ public class RegisterPage {
     // Конструктор класса
     public RegisterPage(WebDriver driver) {
         webDriver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     public By getLkButton() {
         return lkButton;
+    }
+
+    @Step("Ожидание видимости кнопки Личный кабинет")
+    public WebElement waitForLKButton() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(getLkButton()));
     }
 
     @Step("Клик по кнопке 'Личный кабинет'")
@@ -37,6 +48,16 @@ public class RegisterPage {
     public By getRegisterLinkElement() {
         return registerLink;
     }
+
+    @Step("Ожидание видимости гипертекста регистрации")
+    public WebElement waitForRegisterLinkElement() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(getRegisterLinkElement()));
+    }
+    @Step("Скролл до гипертекста регистрации")
+    public void navigateToRegisterLinkElement() {
+        WebElement registerLinkElement = waitForRegisterLinkElement();
+        scrollToElement(registerLinkElement);
+       }
 
     @Step("Клик по тексту 'Зарегистрироваться'")
     public void clickRegisterLink() {
@@ -59,6 +80,14 @@ public class RegisterPage {
         webDriver.findElements(inputFields).get(2).sendKeys(password);
     }
 
+    @Step("Ввод информации для регистрации")
+    public void enterRegistrationInfo(String name, String email, String password) {
+        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(inputFields)); // ожидаем видимости элементов формы
+        webDriver.findElements(inputFields).get(0).sendKeys(name);
+        webDriver.findElements(inputFields).get(1).sendKeys(email);
+        webDriver.findElements(inputFields).get(2).sendKeys(password);
+    }
+
     @Step("Клик по кнопке 'Зарегистрироваться'")
     public void clickRegisterButton() {
         WebElement registerbutton = webDriver.findElement(registerButton);
@@ -70,6 +99,16 @@ public class RegisterPage {
         return enterTitle;
     }
 
+    @Step("Ожидание видимости заголовка Вход")
+    public WebElement waitForEnterTitle() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(enterTitle));
+    }
+
+    @Step("Проверка загрузки страницы Входа")
+    public boolean checkEnterTitleIsDisplayed() {
+        return webDriver.findElement(enterTitle).isDisplayed();
+    }
+
     @Step("Прокрутка вниз до элемента")
     public void scrollToElement(WebElement element) {
         ((JavascriptExecutor) webDriver).executeScript("arguments[0].scrollIntoView(true);", element);
@@ -79,8 +118,24 @@ public class RegisterPage {
         return logInButtonUnderRegistryForm;
     }
 
+    @Step("Клик по кнопке под формой регистрации")
+    public void clickLogInButtonUnderRegistryFormElement() {
+        WebElement logInButtonUnderRegistryFormElement = webDriver.findElement(logInButtonUnderRegistryForm);
+        logInButtonUnderRegistryFormElement.click();
+    }
+
+    @Step("Ожидание видимости кнопки под формой регистрации")
+    public WebElement waitForLogInButtonUnderRegistryForm() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(getLogInButtonUnderRegistryFormElement()));
+    }
+
     @Step("Получение сообщения об ошибке Некорректный пароль")
     public String getWrongPasswordErrorMessage() {
         return webDriver.findElement(wrongPasswordErrorMessage).getText();
+    }
+
+    @Step("проверка отображения сообщения о некорректном пароле")
+    public boolean isWrongPasswordErrorMessageDisplayed(){
+        return webDriver.findElement(wrongPasswordErrorMessage).isDisplayed();
     }
 }

@@ -1,20 +1,14 @@
 import client.StellarBurgerClient;
 import config.BrowserFactory;
 import config.TestConfig;
-import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
 import model.Credentials;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-import pageObject.RegisterPage;
-
-import java.time.Duration;
+import pageobject.RegisterPage;
 
 public class UserRegistrationTest {
 
@@ -34,15 +28,13 @@ public class UserRegistrationTest {
     @Test
     @DisplayName("Тест на успешную регистрацию")
     public void testSuccessfulRegistration() {
-        // Регистрация через фронт
         registerPage.clickLKButton();
         registerPage.clickRegisterLink();
-        registerPage.enterName("Иван");
-        registerPage.enterEmail("ivan34567891@example.com");
-        registerPage.enterPassword("123456");
+        registerPage.enterRegistrationInfo("Иван", "ivan34567891@example.com", "123456");
         registerPage.clickRegisterButton();
-        registerPage.getEnterTitleText();
-    }
+        registerPage.waitForEnterTitle();
+        Assert.assertTrue(registerPage.checkEnterTitleIsDisplayed());
+         }
 
     @Test
     @DisplayName("Регистрация с паролем менее 6 символов")
@@ -50,11 +42,10 @@ public class UserRegistrationTest {
 
         registerPage.clickLKButton();
         registerPage.clickRegisterLink();
-        registerPage.enterName("Иван");
-        registerPage.enterEmail("ivan34567891@example.com");
-        registerPage.enterPassword("123");
+        registerPage.enterRegistrationInfo("Иван", "ivan34567891@example.com", "123");
         registerPage.clickRegisterButton();
         registerPage.getWrongPasswordErrorMessage();
+        Assert.assertTrue(registerPage.isWrongPasswordErrorMessageDisplayed());
     }
 
 
